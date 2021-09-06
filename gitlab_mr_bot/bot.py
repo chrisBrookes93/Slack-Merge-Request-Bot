@@ -1,9 +1,10 @@
 # TODO - schedule message
+# work out dates without weekend
 
-from flask import Flask, request, Response
 import logging
 import slack
-from slackeventsapi import SlackEventAdapter
+from slack_bolt import App
+from slack_bolt.adapter.socket_mode import SocketModeHandler
 import sys
 import threading
 
@@ -11,26 +12,25 @@ from gitlab_mr_bot.gitlab_handler import GitLabHandler
 from gitlab_mr_bot.mr_list_message_block import MergeRequestListMessage
 from gitlab_mr_bot.slack_channel_reader import SlackChannelReader
 
-logging.basicConfig(format='%(message)s', level=logging.DEBUG, stream=sys.stdout)
 
-SLACK_TOKEN = ''
-SLACK_SIGNING_SECRET = ''
+SLACK_TOKEN = 'xoxb-...'
+SLACK_APP_TOKEN = 'xapp-...'
 HISTORY_READ_DAYS = 3
 SCHEDULE = ''
-PRIV_TOKEN = ''
+GITLAB_PRIV_TOKEN = ''
 GITLAB_URL = 'https://gitlab.com'
 DEBUG = True
 
-flask_app = Flask(__name__)
-slack_client = slack.WebClient(token=SLACK_TOKEN)
-slack_event_adapter = SlackEventAdapter(SLACK_SIGNING_SECRET, '/slack/events', flask_app)
+logging.basicConfig(format='%(message)s', level=logging.DEBUG if DEBUG else logging.INFO, stream=sys.stdout)
+
+
+
+
+app = App(token=SLACK_BOT_TOKEN, process_before_response=True)
+slack_client = slack.WebClient(token=SLACK_BOT_TOKEN)
 slack_channel_reader = SlackChannelReader(slack_client, HISTORY_READ_DAYS, GITLAB_URL)
 bot_id = slack_client.api_call('auth.test')['user_id']
-gitlab_client = GitLabHandler(GITLAB_URL, PRIV_TOKEN)
-
-
-def run():
-    flask_app.run(debug=DEBUG)
+gitlab_client = GitLabHandler(GITLAB_URL, GITLAB_PRIV_TOKEN)
 
 
 def post_merge_requests(channel_id):
@@ -42,19 +42,29 @@ def post_merge_requests(channel_id):
         message_list.add_mr(mr)
 
     blocks = message_list.get_blocks()
-    slack_client.chat_postMessage(channel=channel_id, blocks=blocks)
+    slack_client.chat_postMessage(channel=channel_id, blocks=blocks, text='We have the following active Merge Requests:')
 
 
-@flask_app.route('/mr_list', methods=['POST'])
-def mr_list():
-    data = request.form
-    user_id = data.get('user_id')
-    channel_id = data.get('channel_id')
+@app.event("message")
+def handle_message_events(_body, _logger):
+    # Prevents a lot of errors in the logs
+    pass
+
+
+@app.command("/mrlist")
+def mr_list(ack, respond, command):
+    ack()
+    user_id = command.get('user_id')
+    channel_id = command.get('channel_id')
 
     if user_id is not None and bot_id != user_id:
         threading.Thread(target=post_merge_requests, args=(channel_id,)).start()
 
-    return Response(), 200
+    return respond()
+
+
+def run():
+    SocketModeHandler(app, SLACK_APP_TOKEN).start()
 
 
 if __name__ == '__main__':

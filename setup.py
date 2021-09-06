@@ -16,9 +16,8 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(),
     install_requires=[
-        'flask >=2, <3',
         'slackclient==2.9.3',
-        'slackeventsapi==2.2.1',
+        'slack_bolt==1.9.0',
         'python-gitlab==2.10.1'
     ],
 )
