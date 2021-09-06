@@ -3,6 +3,7 @@ import logging
 import slack
 from slackeventsapi import SlackEventAdapter
 import sys
+import threading
 
 from gitlab_mr_bot.gitlab_handler import GitLabHandler
 from gitlab_mr_bot.mr_list_message_block import MergeRequestListMessage
@@ -18,7 +19,7 @@ GITLAB_URL = 'https://gitlab.com'
 slack_client = None
 slack_event_adapter = None
 gitlab_client = None
-flask_app = None
+flask_app = Flask(__name__)
 bot_id = None
 
 
@@ -34,16 +35,11 @@ def run():
     slack_client = slack.WebClient(token=SLACK_TOKEN)
     bot_id = slack_client.api_call('auth.test')['user_id']
 
-    flask_app = Flask(__name__)
     slack_event_adapter = SlackEventAdapter(SLACK_SIGNING_SECRET, '/slack/events', flask_app)
 
     gitlab_client = GitLabHandler(GITLAB_URL, PRIV_TOKEN)
 
     flask_app.run(debug=True)
-
-
-if __name__ == '__main__':
-    run()
 
 
 # Stolen and adapted from: https://stackoverflow.com/questions/12691551/
@@ -59,12 +55,7 @@ if __name__ == '__main__':
 #         business_days_to_sub -= 1
 #     return current_date
 
-
-@flask_app.route('/mr_list', methods=['POST'])
-def mr_list():
-    data = request.form
-    user_id = data.get('user_id')
-    channel_id = data.get('channel_id')
+def post_merge_requests(channel_id):
     result = slack_client.conversations_history(channel=channel_id)
 
     conversation_history = result["messages"]
@@ -75,16 +66,26 @@ def mr_list():
                 'https://gitlab.com/chrisBrookes93/currency_flask/-/merge_requests/5',
                 'https://gitlab.com/chrisBrookes93/currency_flask/-/merge_requests/6']
 
-    if user_id is not None and bot_id != user_id:
-        message_list = MergeRequestListMessage()
-        for url in url_list:
-            mr = gitlab_client.fetch_merge_request(url)
-            message_list.add_mr(mr)
+    message_list = MergeRequestListMessage()
+    for url in url_list:
+        mr = gitlab_client.fetch_merge_request(url)
+        message_list.add_mr(mr)
 
-        blocks = message_list.get_blocks()
-        slack_client.chat_postMessage(channel=channel_id, blocks=blocks)
+    blocks = message_list.get_blocks()
+    slack_client.chat_postMessage(channel=channel_id, blocks=blocks)
+
+
+@flask_app.route('/mr_list', methods=['POST'])
+def mr_list():
+    data = request.form
+    user_id = data.get('user_id')
+    channel_id = data.get('channel_id')
+
+    if user_id is not None and bot_id != user_id:
+        threading.Thread(target=post_merge_requests, args=(channel_id,)).start()
 
     return Response(), 200
 
 
-
+if __name__ == '__main__':
+    run()
