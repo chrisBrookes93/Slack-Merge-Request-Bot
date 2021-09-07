@@ -30,7 +30,7 @@ class GitLabHandler:
                     pipeline_status = None
                     pipelines = mr.pipelines.list()
                     if pipelines:
-                        pipeline_status = mr.pipelines.list()[0].status
+                        pipeline_status = pipelines[0].status
 
                     return {
                         'title': mr.title,
