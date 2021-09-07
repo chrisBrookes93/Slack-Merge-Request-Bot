@@ -1,6 +1,6 @@
 # work out dates without weekend
-# docker deployment
 import logging
+import os
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 import sys
@@ -11,22 +11,16 @@ from slack_mr_bot.mr_list_message_block import MergeRequestListMessage
 from slack_mr_bot.slack_channel_reader import SlackChannelReader
 
 
-SLACK_TOKEN = 'xoxb-...'
-SLACK_APP_TOKEN = 'xapp-...'
 HISTORY_READ_DAYS = 3
-SCHEDULE = ''
-GITLAB_PRIV_TOKEN = ''
 GITLAB_URL = 'https://gitlab.com'
 DEBUG = True
 
 logging.basicConfig(format='%(message)s', level=logging.DEBUG if DEBUG else logging.INFO, stream=sys.stdout)
 
-
-
-app = App(token=SLACK_BOT_TOKEN, process_before_response=True)
+app = App(token=os.environ['SLACK_BOT_TOKEN'])
 slack_channel_reader = SlackChannelReader(app.client, HISTORY_READ_DAYS, GITLAB_URL)
 bot_id = app.client.api_call('auth.test')['user_id']
-gitlab_client = GitLabHandler(GITLAB_URL, GITLAB_PRIV_TOKEN)
+gitlab_client = GitLabHandler(GITLAB_URL, os.environ['GITLAB_PRIV_TOKEN'])
 
 
 def post_merge_requests(channel_id):
@@ -66,10 +60,8 @@ def mr_list(ack, respond, command):
     return respond()
 
 
-
-
 def run():
-    SocketModeHandler(app, SLACK_APP_TOKEN).start()
+    SocketModeHandler(app, os.environ['SLACK_APP_TOKEN']).start()
 
 
 if __name__ == '__main__':
