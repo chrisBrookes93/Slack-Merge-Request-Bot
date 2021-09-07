@@ -1,4 +1,4 @@
-from gitlab_mr_bot.mr_message_block import MergeRequestMessage
+from slack_mr_bot.mr_message_block import MergeRequestMessage
 
 
 class MergeRequestListMessage:

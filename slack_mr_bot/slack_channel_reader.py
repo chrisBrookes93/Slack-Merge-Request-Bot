@@ -3,7 +3,7 @@ import re
 
 class SlackChannelReader:
 
-    BASE_URL_REGEX = '{domain_name}\/[^\/]+\/[^\/]+.*\/merge_requests\/[\d]+'
+    BASE_URL_REGEX = '{domain_name}\\/[^\\/]+\\/[^\\/]+\\/\\-\\/merge_requests\\/[\\d]+'
 
     def __init__(self, slack_client, days_to_read, gitlab_domain_name):
         self.slack_client = slack_client

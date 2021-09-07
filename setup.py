@@ -15,9 +15,9 @@ setuptools.setup(
         'Operating System :: OS Independent',
     ],
     packages=setuptools.find_packages(),
-    install_requires=[
-        'slackclient==2.9.3',
-        'slack_bolt==1.9.0',
-        'python-gitlab==2.10.1'
-    ],
+    entry_points={
+        'console_scripts': [
+            'slack_mr_bot = gitlab_mr_bot.bot:run',
+        ],
+    },
 )
