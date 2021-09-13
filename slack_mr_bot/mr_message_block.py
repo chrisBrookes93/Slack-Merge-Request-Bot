@@ -36,10 +36,6 @@ class MergeRequestMessage:
 
         approvals = self.mr_dict['approval_count']
 
-        # TODO - remove this line, its for debugging!
-        import random
-        approvals = random.choice([0, 1, 2, 3, 4])
-
         format_dict['approvals'] = ':white_check_mark: ' * approvals
         # For alignment
         format_dict['approvals'] += '      ' * (4 - approvals)

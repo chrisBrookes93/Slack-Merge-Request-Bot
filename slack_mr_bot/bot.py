@@ -1,4 +1,3 @@
-# work out dates without weekend
 import logging
 import os
 from slack_bolt import App
@@ -11,16 +10,13 @@ from slack_mr_bot.mr_list_message_block import MergeRequestListMessage
 from slack_mr_bot.slack_channel_reader import SlackChannelReader
 
 
-HISTORY_READ_DAYS = 3
-GITLAB_URL = 'https://gitlab.com'
-DEBUG = True
-
-logging.basicConfig(format='%(message)s', level=logging.DEBUG if DEBUG else logging.INFO, stream=sys.stdout)
+log_level = logging.DEBUG if os.environ.get('DEBUG_LOG') else logging.INFO
+logging.basicConfig(format='%(message)s', level=log_level, stream=sys.stdout)
 
 app = App(token=os.environ['SLACK_BOT_TOKEN'])
-slack_channel_reader = SlackChannelReader(app.client, HISTORY_READ_DAYS, GITLAB_URL)
+slack_channel_reader = SlackChannelReader(app.client, os.environ.get('HISTORY_READ_DAYS', 3))
 bot_id = app.client.api_call('auth.test')['user_id']
-gitlab_client = GitLabHandler(GITLAB_URL, os.environ['GITLAB_PRIV_TOKEN'])
+gitlab_client = GitLabHandler(os.environ['GITLAB_URL'], os.environ['GITLAB_PRIV_TOKEN'])
 
 
 def post_merge_requests(channel_id):

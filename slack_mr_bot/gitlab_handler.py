@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 class GitLabHandler:
-    URL_REGEX = 'gitlab\\.com\\/([^\\/]+)\\/([^\\/]+)[^\\d]+([\\d]+)'
+    URL_REGEX = '\\/([^\\/]+)\\/([^\\/]+)[^\\d]+([\\d]+)'
 
     def __init__(self, url, private_token):
         self.url = url

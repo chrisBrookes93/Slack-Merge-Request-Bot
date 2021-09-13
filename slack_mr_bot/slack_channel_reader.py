@@ -1,19 +1,21 @@
-import datetime
+from datetime import datetime, timedelta
 import re
+
+WEEKEND_DAYS = [5, 6]  # Assumes you're using date.weekday() rather than isoweekday() when checking for weekdays
+
 
 class SlackChannelReader:
 
-    BASE_URL_REGEX = '{domain_name}\\/[^\\/]+\\/[^\\/]+\\/\\-\\/merge_requests\\/[\\d]+'
+    URL_REGEX = '\\/[^\\/]+\\/[^\\/]+\\/\\-\\/merge_requests\\/[\\d]+'
 
-    def __init__(self, slack_client, days_to_read, gitlab_domain_name):
+    def __init__(self, slack_client, days_to_read):
         self.slack_client = slack_client
         self.days_to_read = days_to_read
-        self.url_regex = self.BASE_URL_REGEX.format(domain_name=re.escape(gitlab_domain_name))
 
     def find_mr_urls(self, channel_id):
         url_list = []
         start_from = self._calculate_read_to_datetime()
-        result = self.slack_client.conversations_history(channel=channel_id, oldest=start_from.timestamp())
+        result = self.slack_client.conversations_history(limit=1000, channel=channel_id, oldest=start_from.timestamp())
 
         conversation_history = result["messages"]
 
@@ -23,38 +25,23 @@ class SlackChannelReader:
                 continue
 
             text = message_dict['text']
-            matches = re.findall(self.url_regex, text)
+            matches = re.findall(self.URL_REGEX, text)
             url_list.extend(matches)
-
-        # url_list = ['https://gitlab.com/chrisBrookes93/currency_flask/-/merge_requests/2',
-        #             'https://gitlab.com/chrisBrookes93/currency_flask/-/merge_requests/3',
-        #             'https://gitlab.com/chrisBrookes93/currency_flask/-/merge_requests/4',
-        #             'https://gitlab.com/chrisBrookes93/currency_flask/-/merge_requests/5',
-        #             'https://gitlab.com/chrisBrookes93/currency_flask/-/merge_requests/6']
 
         return set(url_list)
 
-    def _calculate_read_to_datetime(self):
+    @staticmethod
+    def _calculate_read_to_datetime():
         """
         Calculate how far to read back (not including weekend days).
-        :return:
         """
-        tod = datetime.datetime.now()
-        # td = datetime.timedelta(days=self.days_to_read)
-        # TODO - this is for debugging purposes, remove
-        td = datetime.timedelta(minutes=30)
-        to_read = tod - td
-        return to_read
+        now = datetime.now()
+        days_back = 3
+        target_date = now
 
-        # Stolen and adapted from: https://stackoverflow.com/questions/12691551/
-        # import datetime
-        # def date_by_sub_business_days(from_date, sub_days):
-        #     business_days_to_sub = sub_days
-        #     current_date = from_date
-        #     while business_days_to_sub > 0:
-        #         current_date -= datetime.timedelta(days=1)
-        #         weekday = current_date.weekday()
-        #         if weekday >= 5: # sunday = 6
-        #             continue
-        #         business_days_to_sub -= 1
-        #     return current_date
+        while days_back:
+            target_date = target_date - timedelta(days=1)
+            if target_date.weekday() not in WEEKEND_DAYS:
+                days_back -= 1
+
+        return target_date
