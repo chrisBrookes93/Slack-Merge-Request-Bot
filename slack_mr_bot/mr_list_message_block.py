@@ -2,7 +2,7 @@ from slack_mr_bot.mr_message_block import MergeRequestMessage
 
 
 class MergeRequestListMessage:
-    DIVIDER = {'type': 'divider'}
+    DIVIDER = {"type": "divider"}
 
     def __init__(self, mr_list=None):
         self.mr_messages = []
@@ -19,12 +19,11 @@ class MergeRequestListMessage:
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "*We have the following active Merge Requests:*"
-                }
+                    "text": "*We have the following active Merge Requests:*",
+                },
             },
-            {
-                "type": "divider"
-            }]
+            {"type": "divider"},
+        ]
 
         for mr in self.mr_messages:
             blocks.append(mr.get_block())
