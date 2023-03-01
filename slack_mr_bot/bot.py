@@ -29,7 +29,8 @@ def post_merge_requests(channel_id):
         message_list = MergeRequestListMessage()
         for url in url_list:
             mr = gitlab_client.fetch_merge_request(url)
-            message_list.add_mr(mr)
+            if mr is not None:
+                message_list.add_mr(mr)
 
         blocks = message_list.get_blocks()
     text = "We have {0} active Merge Requests".format(len(url_list))
