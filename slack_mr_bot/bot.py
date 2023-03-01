@@ -15,7 +15,7 @@ logging.basicConfig(format="%(message)s", level=log_level, stream=sys.stdout)
 
 app = App(token=os.environ["SLACK_BOT_TOKEN"])
 slack_channel_reader = SlackChannelReader(
-    app.client, os.environ.get("HISTORY_READ_DAYS", 3)
+    app.client, int(os.environ.get("HISTORY_READ_DAYS", 3))
 )
 bot_id = app.client.api_call("auth.test")["user_id"]
 gitlab_client = GitLabHandler(os.environ["GITLAB_URL"], os.environ["GITLAB_PRIV_TOKEN"])
