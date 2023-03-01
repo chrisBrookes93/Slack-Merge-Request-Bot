@@ -27,6 +27,8 @@ class MergeRequestMessage:
             "url": self.mr_dict["url"],
             "title": self.mr_dict["title"],
             "author": self.mr_dict["author"],
+            "unresolved_threads": self.mr_dict["open_thread_count"],
+            "pipeline_status": self._get_pipeline_message(),
         }
         summary = self.mr_dict["summary"].replace("\n", " ").replace("\r", "")
         summary = (summary[:177] + "...") if len(summary) > 177 else summary
@@ -37,21 +39,6 @@ class MergeRequestMessage:
         format_dict["approvals"] = ":white_check_mark: " * approvals
         # For alignment
         format_dict["approvals"] += "      " * (4 - approvals)
-
-        format_dict["pipeline_status"] = self._get_pipeline_message()
-
-        if (
-            self.mr_dict["open_thread_count"] == 0
-            and self.mr_dict["total_thread_count"] == 0
-        ):
-            format_dict["unresolved_threads"] = "0\t"
-        else:
-            format_dict[
-                "unresolved_threads"
-            ] = "{open_thread_count}/{total_thread_count}".format(
-                open_thread_count=self.mr_dict["open_thread_count"],
-                total_thread_count=self.mr_dict["total_thread_count"],
-            )
 
         text = self.MSG_TEMPLATE.format(**format_dict)
 
