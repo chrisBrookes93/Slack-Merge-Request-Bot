@@ -23,6 +23,7 @@ oauth_config:
       - channels:read
       - chat:write
       - commands
+      - groups:history
       - workflow.steps:execute
 settings:
   event_subscriptions:
