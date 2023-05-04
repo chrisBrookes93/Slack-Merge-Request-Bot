@@ -13,6 +13,9 @@ class MergeRequestListMessage:
     def add_mr(self, mr):
         self.mr_messages.append(MergeRequestMessage(mr))
 
+    def __len__(self):
+        return len(self.mr_messages)
+
     def get_blocks(self):
         blocks = [
             {

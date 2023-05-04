@@ -25,15 +25,18 @@ def post_merge_requests(channel_id):
     blocks = None
     url_list = slack_channel_reader.find_mr_urls(channel_id)
 
-    if url_list:
-        message_list = MergeRequestListMessage()
-        for url in url_list:
-            mr = gitlab_client.fetch_merge_request(url)
-            if mr is not None:
-                message_list.add_mr(mr)
+    message_list = MergeRequestListMessage()
+    for url in url_list:
+        mr = gitlab_client.fetch_merge_request(url)
+        if mr is not None:
+            message_list.add_mr(mr)
 
+    if len(message_list) > 0:
         blocks = message_list.get_blocks()
-    text = "We have {0} active Merge Requests".format(len(url_list))
+        text = "We have {0} active Merge Requests".format(len(url_list))
+    else:
+        text = "We have no active Merge Requests"
+
     app.client.chat_postMessage(
         channel=channel_id,
         blocks=blocks,
