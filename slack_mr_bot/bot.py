@@ -82,13 +82,20 @@ def edit(ack, step, configure):
             "type": "actions",
             "elements": [
                 {
-                    "type": "channels_select",
+                    "type": "conversations_select",
                     "placeholder": {
                         "type": "plain_text",
                         "text": "Select a channel",
                         "emoji": True,
                     },
                     "action_id": "choose_channel",
+                    "filter": {
+                        "include": [
+                            "public",
+                            "private"
+                        ],
+                        "exclude_bot_users": True
+                    }
                 }
             ],
         }
@@ -104,7 +111,7 @@ def save(ack, view, update):
 
     input_values = view["state"]["values"]
     # Input values seems to be a dict with random keys, so choose the first (and only) element
-    channel_id = list(input_values.values())[0]["choose_channel"]["selected_channel"]
+    channel_id = list(input_values.values())[0]["choose_channel"]["selected_conversation"]
 
     # Set the channel ID as an input so it will get passed into execute() (so that we know where to post)
     inputs = {"channel_id": {"value": channel_id}}
