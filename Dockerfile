@@ -6,6 +6,6 @@ WORKDIR /app
 
 COPY . /app
 
-RUN pip install -r requirements.txt && pip install .
+RUN pip install .
 
 ENTRYPOINT ["python", "-m", "slack_mr_bot"]

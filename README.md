@@ -29,8 +29,15 @@ Configuration is achieved via environment variables that should exist in the con
 
 ## Installing Package
 ```bash
-$ pip install -r requirements.txt
 $ pip install .
+```
+
+## Use in a different project
+This package is not currently published to PyPI. 
+
+Should you wish to embed this into another project, link via a dependency. Example `requirements.txt`:
+```yaml
+git+https://github.com/chrisBrookes93/Slack-Merge-Request-Bot@2.0.0
 ```
 
 ## Running
