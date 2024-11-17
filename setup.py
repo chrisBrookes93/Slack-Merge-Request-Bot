@@ -20,4 +20,8 @@ setuptools.setup(
             "slack_mr_bot = gitlab_mr_bot.bot:run",
         ],
     },
+    install_requires=[
+        "slack_bolt==1.21.2",
+        "python-gitlab==5.0.0",
+    ]
 )

@@ -1,8 +1,8 @@
 import logging
 import os
-from slack_bolt import App
+from slack_bolt import App, Fail, Say
 from slack_bolt.adapter.socket_mode import SocketModeHandler
-from slack_bolt.workflows.step import WorkflowStep
+
 import sys
 import threading
 
@@ -46,17 +46,10 @@ def post_merge_requests(channel_id):
     )
 
 
-@app.event("message")
-def handle_message_events(_body, _logger):
-    # Prevents a lot of errors in the logs about unhandled events
-    pass
-
-
-@app.action("choose_channel")
-def handle_some_action(ack, body, logger):
-    # This endpoint will be hit when a workflow is created because of the channel select widget (unavoidable).
-    # If this doesn't exist then a warning is raised.
-    ack()
+@app.function("mr_list")
+def handle_sample_step_event(inputs: dict, say: Say, fail: Fail, logger: logging.Logger):
+    channel_id = inputs["channel_id"]
+    threading.Thread(target=post_merge_requests, args=(channel_id,)).start()
 
 
 @app.command("/mrlist")
@@ -69,74 +62,6 @@ def mr_list(ack, respond, command):
         threading.Thread(target=post_merge_requests, args=(channel_id,)).start()
 
     return respond()
-
-
-def edit(ack, step, configure):
-    """
-    Renders the channel drop down when creating a workflow
-    """
-    ack()
-
-    blocks = [
-        {
-            "type": "actions",
-            "elements": [
-                {
-                    "type": "conversations_select",
-                    "placeholder": {
-                        "type": "plain_text",
-                        "text": "Select a channel",
-                        "emoji": True,
-                    },
-                    "action_id": "choose_channel",
-                    "filter": {
-                        "include": [
-                            "public",
-                            "private"
-                        ],
-                        "exclude_bot_users": True
-                    }
-                }
-            ],
-        }
-    ]
-    configure(blocks=blocks)
-
-
-def save(ack, view, update):
-    """
-    Triggered when a workflow is created/saved.
-    """
-    ack()
-
-    input_values = view["state"]["values"]
-    # Input values seems to be a dict with random keys, so choose the first (and only) element
-    channel_id = list(input_values.values())[0]["choose_channel"]["selected_conversation"]
-
-    # Set the channel ID as an input so it will get passed into execute() (so that we know where to post)
-    inputs = {"channel_id": {"value": channel_id}}
-
-    update(inputs=inputs)
-
-
-def execute(step, complete, fail):
-    """
-    Triggered when a workflow is executed
-    """
-    channel_id = step["inputs"]["channel_id"]["value"]
-    post_merge_requests(channel_id)
-    complete()
-
-
-# Create a new WorkflowStep instance
-ws = WorkflowStep(
-    callback_id="list_active_mr",
-    edit=edit,
-    save=save,
-    execute=execute,
-)
-# Pass Step to set up listeners
-app.step(ws)
 
 
 def run():
