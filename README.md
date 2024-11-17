@@ -4,26 +4,28 @@ detailed list to the same channel. This is to remind developers of Merge Request
 
 ## Installation
 
-- In the Slack Workspace admin settings, create new app by uploading `slack_app_manifest.yml`
-- Set the logo (image included in this repo)
+- Go to https://api.slack.com/apps and click `Create New App`.
+- Click `from manifest`, select the workspace, and paste in the contents of `slack_app_manifest.yaml`
+- Set the logo under `Display Information` (image included in this repo)
 - On the `Basic information` tab, go to `App-Level Tokens`. 
 Create a new token with the permission of `connections:write` value. 
-You will need this for the configuration.
-- On the `OAuth & Permissions menu`, copy the `Bot User OAuth Token` value. 
-You will need this for the configuration.
+Copy this value, you will need this for the configuration.
+- On the `OAuth & Permissions` menu, click `Install to Organization` and then `Allow`. Copy the `Bot User OAuth Token` value, you will need this for the configuration.
+- On the same page click `Install to <workspace name>`, and then `Allow`.
+- You *might* then need an Administrator to approve the app under https://app.slack.com/apps-manage/<workspace_ID>.
 
 
 ## Configuration
-Configuration is acheived via environment variables that should exist in the container.
+Configuration is achieved via environment variables that should exist in the container.
 
-| Env Var Name | Description | Example Value |
-| --- | --- | --- |
+| Env Var Name | Description | Example Value                            |
+| --- | --- |------------------------------------------|
 | SLACK_BOT_TOKEN | Bot token | xoxb-xxxxxxxxx-yyyyyyyyyy-zzzzzzzzzzzzzz |
-| SLACK_APP_TOKEN | App level token | xapp-1-xxxxxxxxxxxx-yyyyyyyyy-zzzzzzzzz |
-| DEBUG_LOG | Print debug logs if enabled | 1  |
-| HISTORY_READ_DAYS | Number of days to read back into the chat (excluding weekends) | 3  |
-| GITLAB_URL | Base URL of the GitLab instance| https://gitlab.com |
-| GITLAB_PRIV_TOKEN | GitLab private token | abcdef12345 |
+| SLACK_APP_TOKEN | App level token | xapp-X-xxxxxxxxxxxx-yyyyyyyyy-zzzzzzzzz  |
+| DEBUG_LOG | Print debug logs if enabled | 1                                        |
+| HISTORY_READ_DAYS | Number of days to read back into the chat (excluding weekends) | 3                                        |
+| GITLAB_URL | Base URL of the GitLab instance| https://gitlab.com                       |
+| GITLAB_PRIV_TOKEN | GitLab private token | abcdef12345                              |
 
 ## Installing Package
 ```bash
@@ -54,17 +56,9 @@ $ make up
 ```
 
 ## Executing on a schedule
-You can get this bot to run on a schedule by setting up a [Slack Workflow](https://slack.com/intl/en-gb/help/articles/360035692513-Guide-to-Workflow-Builder). 
-
-Under the Slack Workspace settings, find `Workflow Builder`. 
-
-Click `Create` and then follow the steps:
-- Give the workflow a descriptive name and then click `Next`.
-- Select `Scheduled date & time`. Choose an appropriate daily time to trigger the workflow. Click `Next`.
-- Click `Add Step` and then select the `List Active Merge Requests` action from the list.
-- Select the Slack channel you wish this workflow to apply to and then click `Save`
-- Click `Publish` to finalise and activate the workflow.
-
+You can get this bot to run on a schedule by setting up a Slack Workflow.
+See the guide written [here](https://slack.com/intl/en-gb/help/articles/17542172840595-Build-a-workflow--Create-a-workflow-in-Slack). 
+The Step will appear under the last option in the list called `Custom` under `GitLab MR Bot`.
 
 ## Example View
 ![Screenshot of the bot output](screenshot.PNG "Screenshot of the bot output")

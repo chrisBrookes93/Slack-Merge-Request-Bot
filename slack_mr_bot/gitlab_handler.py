@@ -36,7 +36,7 @@ class GitLabHandler:
             if d.attributes.get('notes'):
                 # We have to check the first note to see if it's a thread
                 note_0 = d.attributes['notes'][0]
-
+                logger.info(note_0['body'])
                 if note_0.get('type') and note_0['type'].lower() in ("discussionnote", "diffnote") and note_0['resolved'] is False:
                     unresolved_threads += 1
 
