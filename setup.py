@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="slack_mr_bot",
-    version="2.1.0",
+    version="2.1.1",
     author="Chris Brookes",
     author_email="chris-brookes93@outlook.com",
     classifiers=[
