@@ -42,8 +42,8 @@ class GitLabHandler:
 
     def fetch_merge_request(self, url):
         try:
-            project_path = url.split("/-/merge_requests/")[0].lstrip("/")
-            mr_id = url.split("/-/merge_requests/")[1].lstrip("/")
+            project_path = url.split("/-/merge_requests/")[0].strip("/")
+            mr_id = url.split("/-/merge_requests/")[1].strip("/")
 
             project = self.client.projects.get(project_path)
             mr = project.mergerequests.get(id=mr_id)
