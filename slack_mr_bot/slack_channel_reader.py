@@ -9,7 +9,9 @@ WEEKEND_DAYS = [
 
 class SlackChannelReader:
 
-    URL_REGEX = "\\/[^\\/]+\\/[^\\/]+\\/\\-\\/merge_requests\\/[\\d]+"
+    MR_RE = re.compile(
+        r"https?://[^/]+/((?:[A-Za-z0-9_.-]+/)+-/merge_requests/\d+)"
+    )
 
     def __init__(self, slack_client, days_to_read):
         self.slack_client = slack_client
@@ -30,8 +32,7 @@ class SlackChannelReader:
                 continue
 
             text = message_dict["text"]
-            matches = re.findall(self.URL_REGEX, text)
-            url_list.extend(matches)
+            url_list.extend(self.MR_RE.findall(text))
 
         return set(url_list)
 
