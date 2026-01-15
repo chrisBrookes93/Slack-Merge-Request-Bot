@@ -1,12 +1,10 @@
 import gitlab
 import logging
-import re
 
 logger = logging.getLogger(__name__)
 
 
 class GitLabHandler:
-    URL_REGEX = "\\/([^\\/]+)\\/([^\\/]+)[^\\d]+([\\d]+)"
 
     def __init__(self, url, private_token):
         self.url = url
@@ -44,13 +42,13 @@ class GitLabHandler:
 
     def fetch_merge_request(self, url):
         try:
-            match = re.search(self.URL_REGEX, url)
-            if match and len(match.groups()) == 3:
-                namespace, project, mr_id = match.groups()
+            project_path = url.split("/-/merge_requests/")[0].lstrip("/")
+            mr_id = url.split("/-/merge_requests/")[1].lstrip("/")
 
-                proj = self.client.projects.get(f"{namespace}/{project}")
-                mr = proj.mergerequests.get(id=mr_id)
+            project = self.client.projects.get(project_path)
+            mr = project.mergerequests.get(id=mr_id)
 
+            if project and mr:
                 if mr.state == "opened":
                     pipeline_status = None
                     pipelines = mr.pipelines.list()
