@@ -6,11 +6,15 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="slack_mr_bot",
-    version="0.1.0",
+    version="2.1.0",
     author="Chris Brookes",
     author_email="chris-brookes93@outlook.com",
     classifiers=[
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
@@ -21,7 +25,7 @@ setuptools.setup(
         ],
     },
     install_requires=[
-        "slack_bolt==1.21.2",
-        "python-gitlab==5.0.0",
+        "slack_bolt==1.27.0",
+        "python-gitlab==7.1.0",
     ]
 )
